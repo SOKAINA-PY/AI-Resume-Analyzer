@@ -1,19 +1,27 @@
 import streamlit as st
+from analyzer.pdf_reader import extract_text
 
-# Page configuration
+# ======================================================
+# Page Configuration
+# ======================================================
+
 st.set_page_config(
     page_title="AI Resume Analyzer",
     page_icon="📄",
     layout="wide"
 )
 
+# ======================================================
 # Title
+# ======================================================
+
 st.title("📄 AI Resume Analyzer")
 
 st.markdown("""
 Welcome to the **AI Resume Analyzer**.
 
 This application will:
+
 - 📄 Read PDF resumes
 - 🧠 Extract skills
 - 📊 Calculate ATS score
@@ -21,11 +29,16 @@ This application will:
 - 🤖 Generate AI recommendations
 """)
 
-# Upload PDF
 uploaded_file = st.file_uploader(
     "Upload your Resume (PDF)",
     type=["pdf"]
 )
 
-if uploaded_file:
-    st.success(f"File uploaded successfully: {uploaded_file.name}")
+if uploaded_file is not None:
+
+    st.success("Resume uploaded successfully!")
+
+    text = extract_text(uploaded_file)
+
+    with st.expander("📄 View Extracted Resume"):
+        st.text(text)
