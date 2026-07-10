@@ -1,0 +1,36 @@
+{
+  "Programming Languages": [
+    "Python",
+    "Java",
+    "C",
+    "C++",
+    "JavaScript",
+    "SQL"
+  ],
+
+  "Frameworks": [
+    "Django",
+    "Flask",
+    "Spring Boot",
+    "React",
+    "Node.js"
+  ],
+
+  "AI & Data": [
+    "TensorFlow",
+    "PyTorch",
+    "Scikit-learn",
+    "Pandas",
+    "NumPy",
+    "OpenCV"
+  ],
+
+  "Cloud & DevOps": [
+    "Docker",
+    "Kubernetes",
+    "AWS",
+    "Azure",
+    "Git",
+    "GitHub"
+  ]
+}
