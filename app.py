@@ -2,6 +2,7 @@ import streamlit as st
 
 from analyzer.pdf_reader import extract_text
 from analyzer.skills_extractor import load_skills, extract_skills
+from analyzer.scorer import calculate_ats_score
 
 # --------------------------------------------------
 # Page Configuration
@@ -32,12 +33,17 @@ This application will:
 """)
 
 # --------------------------------------------------
-# Upload Resume
+# Inputs
 # --------------------------------------------------
 
 uploaded_file = st.file_uploader(
     "Upload your Resume (PDF)",
     type=["pdf"]
+)
+
+job_description = st.text_area(
+    "Paste the Job Description",
+    height=200
 )
 
 # --------------------------------------------------
@@ -51,18 +57,19 @@ if uploaded_file is not None:
     # Extract resume text
     resume_text = extract_text(uploaded_file)
 
-    # Display extracted text
+    # Display extracted resume
     st.subheader("📄 View Extracted Resume")
+
     st.text_area(
         "Resume Content",
         resume_text,
-        height=350
+        height=300
     )
 
     # Load skills database
     skills_database = load_skills()
 
-    # Extract skills
+    # Detect skills
     detected_skills = extract_skills(
         resume_text,
         skills_database
@@ -76,8 +83,82 @@ if uploaded_file is not None:
         cols = st.columns(3)
 
         for index, skill in enumerate(detected_skills):
-            cols[index % 3].success(f"✅ {skill}")
+            cols[index % 3].success(skill)
 
     else:
 
-        st.warning("No skills were detected.")
+        st.warning("No skills detected.")
+
+    # --------------------------------------------------
+    # ATS Score
+    # --------------------------------------------------
+
+    if job_description.strip() != "":
+
+        score, matched_skills, missing_skills = calculate_ats_score(
+            detected_skills,
+            job_description,
+            skills_database
+        )
+
+        st.subheader("📊 ATS Score")
+
+        st.metric(
+            label="Resume Match",
+            value=f"{score}%"
+        )
+
+        st.progress(score / 100)
+
+        if score >= 80:
+            st.success(
+                "Excellent match! Your resume fits the job description."
+            )
+
+        elif score >= 60:
+            st.info(
+                "Good match. Consider adding the missing skills."
+            )
+
+        else:
+            st.warning(
+                "Low match. Update your resume to better fit the job description."
+            )
+
+        # -----------------------------
+        # Matched Skills
+        # -----------------------------
+
+        st.subheader("✅ Matched Skills")
+
+        if matched_skills:
+
+            cols = st.columns(3)
+
+            for index, skill in enumerate(matched_skills):
+                cols[index % 3].success(skill)
+
+        else:
+
+            st.info("No matched skills found.")
+
+        # -----------------------------
+        # Missing Skills
+        # -----------------------------
+
+        st.subheader("❌ Missing Skills")
+
+        if missing_skills:
+
+            cols = st.columns(3)
+
+            for index, skill in enumerate(missing_skills):
+                cols[index % 3].error(skill)
+
+        else:
+
+            st.success("No missing skills!")
+
+    else:
+
+        st.info("Paste a Job Description to calculate the ATS Score.")
