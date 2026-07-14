@@ -5,6 +5,7 @@ from analyzer.job_reader import extract_job_description
 from analyzer.skills_extractor import load_skills, extract_skills
 from analyzer.scorer import calculate_ats_score
 from analyzer.similarity import calculate_similarity
+from analyzer.recommendations import generate_recommendations
 
 # --------------------------------------------------
 # Page Configuration
@@ -34,14 +35,20 @@ This application will:
 - 🤖 Generate AI recommendations
 """)
 
+st.divider()
+
 # --------------------------------------------------
 # Resume Upload
 # --------------------------------------------------
+
+st.subheader("📄 Upload Resume")
 
 uploaded_file = st.file_uploader(
     "Upload your Resume (PDF)",
     type=["pdf"]
 )
+
+st.divider()
 
 # --------------------------------------------------
 # Job Description
@@ -51,8 +58,13 @@ st.subheader("💼 Job Description")
 
 job_option = st.radio(
     "Choose Job Description Input",
-    ["Paste Text", "Upload PDF"]
+    (
+        "Paste Text",
+        "Upload PDF"
+    )
 )
+
+job_description = ""
 
 if job_option == "Paste Text":
 
@@ -71,13 +83,15 @@ else:
 
     if uploaded_job is not None:
 
-        job_description = extract_job_description(uploaded_job)
+        job_description = extract_job_description(
+            uploaded_job
+        )
 
-        st.success("Job Description uploaded successfully!")
+        st.success(
+            "Job Description uploaded successfully!"
+        )
 
-    else:
-
-        job_description = ""
+st.divider()
 
 # --------------------------------------------------
 # Resume Analysis
@@ -107,8 +121,10 @@ if uploaded_file is not None:
         resume_text,
         skills_database
     )
+        # --------------------------------------------------
+    # Display Detected Skills
+    # --------------------------------------------------
 
-    # Display Skills
     st.subheader("🧠 Detected Skills")
 
     if detected_skills:
@@ -122,33 +138,58 @@ if uploaded_file is not None:
 
         st.warning("No skills detected.")
 
+    st.divider()
+
     # --------------------------------------------------
-    # ATS + Similarity
+    # ATS Score + Similarity
     # --------------------------------------------------
 
     if job_description.strip() != "":
 
+        # ATS Score
         score, matched_skills, missing_skills = calculate_ats_score(
             detected_skills,
             job_description,
             skills_database
         )
 
+        # Similarity Score
         similarity_score = calculate_similarity(
             resume_text,
             job_description
         )
 
-        # ATS Score
+        # ===============================
+        # Dashboard
+        # ===============================
 
-        st.subheader("📊 ATS Score")
+        col1, col2 = st.columns(2)
 
-        st.metric(
-            "Resume Match",
-            f"{score}%"
-        )
+        with col1:
 
-        st.progress(score / 100)
+            st.subheader("📊 ATS Score")
+
+            st.metric(
+                "Resume Match",
+                f"{score}%"
+            )
+
+            st.progress(score / 100)
+
+        with col2:
+
+            st.subheader("📄 Text Similarity")
+
+            st.metric(
+                "Similarity Score",
+                f"{similarity_score}%"
+            )
+
+            st.progress(similarity_score / 100)
+
+        # ===============================
+        # ATS Feedback
+        # ===============================
 
         if score >= 80:
 
@@ -159,29 +200,17 @@ if uploaded_file is not None:
         elif score >= 60:
 
             st.info(
-                "Good match. Consider adding the missing skills."
+                "Good match. Add a few missing skills to improve your score."
             )
 
         else:
 
             st.warning(
-                "Low match. Update your resume to better fit the job description."
+                "Low match. Your resume needs improvements."
             )
 
-        # --------------------------------------------------
-        # Text Similarity
-        # --------------------------------------------------
-
-        st.subheader("📄 Text Similarity")
-
-        st.metric(
-            "Similarity Score",
-            f"{similarity_score}%"
-        )
-
-        st.progress(similarity_score / 100)
-
-        # --------------------------------------------------
+        st.divider()
+                # --------------------------------------------------
         # Matched Skills
         # --------------------------------------------------
 
@@ -214,6 +243,24 @@ if uploaded_file is not None:
         else:
 
             st.success("No missing skills!")
+
+        st.divider()
+
+        # --------------------------------------------------
+        # AI Recommendations
+        # --------------------------------------------------
+
+        recommendations = generate_recommendations(
+            score,
+            matched_skills,
+            missing_skills,
+            resume_text
+        )
+
+        st.subheader("🤖 AI Recommendations")
+
+        for recommendation in recommendations:
+            st.info(recommendation)
 
     else:
 
