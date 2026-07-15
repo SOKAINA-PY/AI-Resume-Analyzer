@@ -14,6 +14,16 @@ An intelligent web application that analyzes resumes, detects technical skills, 
 - ✅ Matched Skills
 - ❌ Missing Skills
 
+- PDF Resume Upload
+- PDF Job Description Upload
+- Resume Text Extraction
+- Skills Detection
+- ATS Score Calculation
+- Similarity Analysis
+- Matched Skills
+- Missing Skills
+- AI Recommendations
+
 
 
 ## 🛠️ Technologies
