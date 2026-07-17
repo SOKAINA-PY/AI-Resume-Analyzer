@@ -7,6 +7,7 @@ from analyzer.scorer import calculate_ats_score
 from analyzer.similarity import calculate_similarity
 from analyzer.recommendations import generate_recommendations
 
+
 # --------------------------------------------------
 # Page Configuration
 # --------------------------------------------------
