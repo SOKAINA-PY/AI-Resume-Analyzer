@@ -1,7 +1,13 @@
 import os
 from dotenv import load_dotenv
+from supabase import create_client
 
 load_dotenv()
 
-print("URL =", os.getenv("SUPABASE_URL"))
-print("KEY =", os.getenv("SUPABASE_KEY"))
+url = os.getenv("SUPABASE_URL")
+key = os.getenv("SUPABASE_KEY")
+
+print("URL:", url)
+print("KEY exists:", key is not None)
+
+supabase = create_client(url, key)
