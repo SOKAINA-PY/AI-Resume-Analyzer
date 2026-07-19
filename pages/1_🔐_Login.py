@@ -18,6 +18,7 @@ password = st.text_input(
 if st.button("Login"):
 
     if email == "" or password == "":
+
         st.warning("Please fill all fields.")
 
     else:
@@ -34,3 +35,18 @@ if st.button("Login"):
 
             st.session_state["logged_in"] = True
             st.session_state["user"] = response.user.email
+
+
+# -----------------------
+# Logout
+# -----------------------
+
+if st.session_state.get("logged_in"):
+
+    st.success(f"Welcome {st.session_state['user']}")
+
+    if st.button("🚪 Logout"):
+
+        st.session_state.clear()
+
+        st.rerun()
