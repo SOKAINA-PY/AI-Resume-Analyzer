@@ -263,4 +263,3 @@ if uploaded_file is not None:
     else:
 
         st.info("Please provide a Job Description.")
-
