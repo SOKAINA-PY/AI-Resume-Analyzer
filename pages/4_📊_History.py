@@ -1,25 +1,49 @@
-from database.supabase_client import supabase
+import streamlit as st
 
+from database.history_reader import get_history
 
-def save_analysis(
-    user_email,
-    result
-):
+st.set_page_config(
+    page_title="History",
+    page_icon="📊"
+)
 
-    data = {
+if not st.session_state.get("logged_in"):
 
-        "user_email": user_email,
+    st.warning("🔒 Please Login First")
 
-        "ats_score": result["ats_score"],
+    st.stop()
 
-        "similarity_score": result["similarity_score"],
+st.title("📊 Analysis History")
 
-        "matched_skills": result["matched_skills"],
+history = get_history(
+    st.session_state["user"]
+)
 
-        "missing_skills": result["missing_skills"],
+if len(history) == 0:
 
-        "recommendations": result["recommendations"]
+    st.info("No analysis found.")
 
-    }
+else:
 
-    supabase.table("analysis_history").insert(data).execute()
+    for item in history:
+
+        with st.expander(
+            f"📄 ATS {item['ats_score']}% | Similarity {item['similarity_score']}%"
+        ):
+
+            st.write("### ✅ Matched Skills")
+
+            for skill in item["matched_skills"]:
+                st.success(skill)
+
+            st.write("### ❌ Missing Skills")
+
+            for skill in item["missing_skills"]:
+                st.error(skill)
+
+            st.write("### 🤖 Recommendations")
+
+            for recommendation in item["recommendations"]:
+                st.info(recommendation)
+
+            st.caption(item["created_at"])
